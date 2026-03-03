@@ -38,11 +38,11 @@ public sealed class Startup
         services.AddDal();
         services.AddLogic();
 
-        services.AddSingleton<ISingleton1, Singleton1>();
-        services.AddSingleton<ISingleton2, Singleton2>();
-
         services.AddScoped<IScoped1, Scoped1>();
         services.AddScoped<IScoped2, Scoped2>();
+
+        services.AddSingleton<ISingleton1, Singleton1>();
+        services.AddSingleton<ISingleton2, Singleton2>();
 
         services.AddTransient<ITransient1, Transient1>();
         services.AddTransient<ITransient2, Transient2>();

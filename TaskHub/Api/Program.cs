@@ -22,32 +22,38 @@ public sealed class Program
             })
             .Build();
 
-            using (var scope1 = host.Services.CreateScope())
-            {
-                var sp = scope1.ServiceProvider;
-                Console.WriteLine("=== Scope 1 ===");
-                sp.ResolveTwice<ISingleton1>("Scope1");
-                sp.ResolveTwice<ISingleton2>("Scope1");
-                sp.ResolveTwice<IScoped1>("Scope1");
-                sp.ResolveTwice<IScoped2>("Scope1");
-                sp.ResolveTwice<ITransient1>("Scope1");
-                sp.ResolveTwice<ITransient2>("Scope1");
-            }
+        //  Демонстрация
+        using (var scope1 = host.Services.CreateScope())
+        {
+            var sp = scope1.ServiceProvider;
+            Console.WriteLine(">>> SCOPE  1 <<<");
 
-            using (var scope2 = host.Services.CreateScope())
-            {
-                var sp = scope2.ServiceProvider;
-                Console.WriteLine("\n=== Scope 2 ===");
-                sp.ResolveTwice<ISingleton1>("Scope2");
-                sp.ResolveTwice<ISingleton2>("Scope2");
-                sp.ResolveTwice<IScoped1>("Scope2");
-                sp.ResolveTwice<IScoped2>("Scope2");
-                sp.ResolveTwice<ITransient1>("Scope2");
-                sp.ResolveTwice<ITransient2>("Scope2");
-            }
+            sp.CompareInstances<ISingleton1>("Scope1");
+            sp.CompareInstances<ISingleton2>("Scope1");
+            sp.CompareInstances<IScoped1>("Scope1");
+            sp.CompareInstances<IScoped2>("Scope1");
+            sp.CompareInstances<ITransient1>("Scope1");
+            sp.CompareInstances<ITransient2>("Scope1");
+        }
 
-            Console.WriteLine("\n=== После завершения scope (scoped должны быть уничтожены) ===");
+        Console.WriteLine("\n Между scope 1 и scope 2 ");
+        Console.WriteLine("Scoped и Transient должны пересоздаться\n");
 
-            host.Run();
+        using (var scope2 = host.Services.CreateScope())
+        {
+            var sp = scope2.ServiceProvider;
+            Console.WriteLine(">>> SCOPE  2 <<<");
+
+            sp.CompareInstances<ISingleton1>("Scope2");
+            sp.CompareInstances<ISingleton2>("Scope2");
+            sp.CompareInstances<IScoped1>("Scope2");
+            sp.CompareInstances<IScoped2>("Scope2");
+            sp.CompareInstances<ITransient1>("Scope2");
+            sp.CompareInstances<ITransient2>("Scope2");
+        }
+
+        Console.WriteLine("Scoped сервисы должны быть уничтожены");
+
+        host.Run();
     }
 }
