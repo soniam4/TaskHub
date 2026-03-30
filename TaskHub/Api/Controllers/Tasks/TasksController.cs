@@ -1,6 +1,7 @@
 ﻿using Api.Attributes;
 using Api.Controllers.Tasks.Request;
 using Api.Controllers.Tasks.Response;
+using Api.Filters;
 using Logic.Tasks.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,8 @@ namespace Api.Controllers.Tasks
     // Контроллер для управления задачами
     [ApiController]
     [Route("tasks")]
+    [StudentInfoHeadersFilter]
+    [RequestLoggingFilter]
     public class TasksController : ControllerBase
     {
         private readonly ITaskService _taskService;
@@ -20,11 +23,15 @@ namespace Api.Controllers.Tasks
 
         // создание новой задачи
         [HttpPost]
+        [ValidateCreateTaskRequestFilter]
         public async Task<ActionResult<TaskResponse>> CreateTaskAsync(
-            [FromBody] CreateTaskRequest request,
-            CancellationToken cancellationToken)
+    [FromBody] CreateTaskRequest request,
+    CancellationToken cancellationToken)
         {
-            var task = await _taskService.CreateTaskAsync(request.Title, request.CreatedByUserId, cancellationToken);
+            var task = await _taskService.CreateTaskAsync(
+                request.Title,
+                request.CreatedByUserId,
+                cancellationToken);
 
             var response = new TaskResponse
             {
@@ -33,7 +40,8 @@ namespace Api.Controllers.Tasks
                 CreatedByUserId = task.CreatedByUserId,
                 CreatedUtc = task.CreatedUtc
             };
-            return CreatedAtAction(nameof(GetTaskByIdAsync), new { id = task.Id }, response);
+
+            return CreatedAtRoute("GetTaskById", new { id = task.Id }, response);
         }
 
         // получение всех задач
@@ -54,7 +62,7 @@ namespace Api.Controllers.Tasks
             return Ok(response);
         }
 
-        [HttpGet("{id}")] 
+        [HttpGet("{id}", Name = "GetTaskById")]
         public async Task<ActionResult<TaskResponse>> GetTaskByIdAsync(
             [FromRouteTaskId] Guid id,
             CancellationToken cancellationToken)
@@ -73,6 +81,7 @@ namespace Api.Controllers.Tasks
         }
 
         [HttpPut("{id}/title")]
+        [ValidateSetTaskTitleRequestFilter]
         public async Task<IActionResult> SetTaskTitleAsync(
             [FromRouteTaskId] Guid id,
             [FromBody] SetTaskTitleRequest request,

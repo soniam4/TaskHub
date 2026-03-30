@@ -1,21 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
-namespace Api.Middleware
+
+namespace Api.Middleware;
+
+public class StudentInfoMiddleware
 {
-    public class StudentInfoMiddleware
+    private readonly RequestDelegate _next;
+
+    public StudentInfoMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public StudentInfoMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+    public async Task InvokeAsync(HttpContext context)
+    {
+        // Добавляем заголовки
+        context.Response.Headers.TryAdd("X-Student-Name", "Matveeva Sonia Vadimovna");
+        context.Response.Headers.TryAdd("X-Student-Group", "RI-240912");
 
-        public async Task InvokeAsync(HttpContext context)
-        {
-            context.Response.Headers.TryAdd("X-Student-Name", "Matveeva Sonia Vadimovna");
-            context.Response.Headers.TryAdd("X-Student-Group", "RI-240912");
-
-            await _next(context);
-        }
+        // Передаём управление дальше
+        await _next(context);
     }
 }
