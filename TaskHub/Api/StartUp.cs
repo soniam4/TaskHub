@@ -1,11 +1,14 @@
+using Api.Middleware;
 using Api.UseCases.Users;
 using Api.UseCases.Users.Interfaces;
 using Dal;
 using Logic;
+using Logic.Disposal;
 using Microsoft.OpenApi.Models;
-using Api.Middleware;
-
 namespace Api;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
 /// <summary>
 /// Конфигурация приложения
@@ -37,7 +40,16 @@ public sealed class Startup
         services.AddControllers();
         services.AddDal();
         services.AddLogic();
-        
+
+        services.AddScoped<IScoped1, Scoped1>();
+        services.AddScoped<IScoped2, Scoped2>();
+
+        services.AddSingleton<ISingleton1, Singleton1>();
+        services.AddSingleton<ISingleton2, Singleton2>();
+
+        services.AddTransient<ITransient1, Transient1>();
+        services.AddTransient<ITransient2, Transient2>();
+
         services.AddScoped<IManageUserUseCase, ManageUserUseCase>();
         
         services.AddCors(options =>
